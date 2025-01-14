@@ -1,0 +1,145 @@
+Microsoft (R) Macro Assembler Version 5.00                  12/10/24 01:45:37
+                                                             Page     1-1
+
+
+ 0000				STACK SEGMENT PARA STACK 
+ 0000  0040[			          DB 64 DUP (' ') 
+	   20			
+			 ]	
+				
+ 0040				STACK ENDS 
+				 
+ 0000				DATA SEGMENT PARA 'DATA' 
+				 
+ 0000  000A			    BALL_X    DW 0Ah    ;X position 
+ 0002  000A			    BALL_Y    DW 0Ah    ;Y position 
+ 0004  0004			    BALL_SIZE DW 04b    ;Size of 4 pixels (in w
+				idth and height) 
+pong.asm(9): error A2107: Non-digit in number
+				     
+ 0006				DATA ENDS 
+				 
+ 0000				CODE SEGMENT PARA 'CODE' 
+				    
+ 0000				MAIN PROC FAR 
+				                         ASSUME CS:CODE, DS:DAT
+				A, SS:STACK    ; assume as code, data, stack re
+				spective registers 
+ 0000  1E			                         PUSH   DS             
+				               ; push datasegment to the stack 
+ 0001  2B C0			                         SUB    AX,AX          
+				               ; clean the AX register 
+ 0003  50			                         PUSH   AX             
+				               ; push AX to the stack 
+ 0004  B8 ---- R		                         MOV    AX,DATA        
+				               ; save on the AX register 
+ 0007  8E D8			                         MOV    DS,AX          
+				               ; save on the DS register 
+ 0009  58			                         POP    AX 
+ 000A  58			                         POP    AX 
+				                 
+ 000B  B4 00			                         MOV    AH,00h         
+				               ; set video mode 
+ 000D  B0 13			                         MOV    AL,13h         
+				               ; 13 320x200 256 color (VGA) 
+ 000F  CD 10			                         INT    10h            
+				               ; INT 10h provides video service
+				s, to draw the pixel 
+				 
+ 0011  B4 08			                         MOV    AH,08h         
+				               ;set config 
+ 0013  B7 00			                         MOV    BH,00h         
+				               ;to the background color 
+ 0015  B3 00			                         MOV    BL,00h         
+				               ;Black as background 08h - dark 
+				gray 
+ 0017  CD 10			                         INT    10h 
+				 
+ 0019  E8 001D R		                         CALL   DRAW_BALL 
+Microsoft (R) Macro Assembler Version 5.00                  12/10/24 01:45:37
+                                                             Page     1-2
+
+
+ 001C  CB			                         RET 
+ 001D				MAIN ENDP 
+				 
+ 001D				DRAW_BALL PROC NEAR 
+				 
+ 001D  8B 0E 0000 R		                         MOV    CX,BALL_X      
+				               ;set the initial column X 
+ 0021  8B 16 0002 R		                         MOV    DX,BALL_Y      
+				               ;set the initial line Y 
+				 
+ 0025				    DRAW_BALL_HORIZONTAL: 
+ 0025  B4 0C			                         MOV    AH,0Ch         
+				               ;write a pixel 
+ 0027  B0 0F			                         MOV    AL,0Fh         
+				               ;color of the pixel F - White 
+ 0029  B7 00			                         MOV    BH,00h         
+				               ;page 0 
+ 002B  CD 10			                         INT    10h 
+ 002D  41			                         INC    CX             
+				               ;CX = CX + 1 
+ 002E  8B C1			                         MOV    AX,CX          
+				               ;CX - BALL_X > BALL_SIZE (Y -> W
+				e go to the next line, N -> We go to t
+ 0030  2B 06 0000 R		                         SUB    AX,BALL_X 
+ 0034  3B 06 0004 R		                         CMP    AX,BALL_SIZE 
+ 0038  7E EB			                         JNG    DRAW_BALL_HORIZ
+				ONTAL 
+ 003A  8B 0E 0000 R		                         MOV    CX,BALL_X      
+				               ;the CX goes back to initial 
+ 003E  42			                         INC    DX             
+				               ;we advance one line 
+ 003F  8B C2			                         MOV    AX,DX          
+				               ;DX - BALL_Y > BALL_SIZE (Y -> W
+				e exit, N -> We continue to the next l
+ 0041  2B 06 0002 R		                         SUB    AX,BALL_Y 
+ 0045  3B 06 0004 R		                         CMP    AX,BALL_SIZE 
+ 0049  7E DA			                         JNG    DRAW_BALL_HORIZ
+				ONTAL 
+				 
+ 004B				    DRAW_BALL_VERTICAL:   
+				 
+ 004B  C3			                         RET 
+ 004C				DRAW_BALL ENDP 
+				  
+ 004C				CODE ENDS 
+				END         
+Microsoft (R) Macro Assembler Version 5.00                  12/10/24 01:45:37
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+CODE . . . . . . . . . . . . . .  	004C	PARA	NONE	'CODE'
+DATA . . . . . . . . . . . . . .  	0006	PARA	NONE	'DATA'
+STACK  . . . . . . . . . . . . .  	0040	PARA	STACK	
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+BALL_SIZE  . . . . . . . . . . .  	L WORD	0004	DATA
+BALL_X . . . . . . . . . . . . .  	L WORD	0000	DATA
+BALL_Y . . . . . . . . . . . . .  	L WORD	0002	DATA
+
+DRAW_BALL  . . . . . . . . . . .  	N PROC	001D	CODE	Length = 002F
+DRAW_BALL_HORIZONTAL . . . . . .  	L NEAR	0025	CODE
+DRAW_BALL_VERTICAL . . . . . . .  	L NEAR	004B	CODE
+
+MAIN . . . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 001D
+
+@FILENAME  . . . . . . . . . . .  	TEXT  pong		
+
+
+     66 Source  Lines
+     66 Total   Lines
+     12 Symbols
+
+  51250 + 465294 Bytes symbol space free
+
+      0 Warning Errors
+      1 Severe  Errors
